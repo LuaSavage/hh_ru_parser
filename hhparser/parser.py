@@ -31,17 +31,13 @@ class Parser:
         return salary
 
     def parse_date(self, raw_date):
-
-        date_text = re.search(r'\d+\s+[^\d\s]+\s+\d+', raw_date or "")        
-
+        date_text = re.search(r'\d+\s+[^\d\s]+\s+\d+', raw_date or "")
         if date_text:
             date_text = date_text.group()
-
         date_splited = re.split("\s+", date_text)  
         a_month = ['', 'янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
         month_abbr = re.search(r'^[\w+]{3}', date_splited[-2]).group()
         month_number = a_month.index(month_abbr)
-
         return datetime.date(int(date_splited[-1]), month_number, int(date_splited[0]))
         
     def parse_vacancy_page(self, url, parse_salary = False, parse_date = False):
@@ -89,13 +85,11 @@ class Parser:
         return vacancy
 
     def parse_vacancys(self, url_list = None, parse_salary = False, parse_date = False):
-
         vacancys_data = []
         if not url_list:
             url_list = self.scrapper.get_vacancy_links()
-
-        for url in url_list: vacancys_data.append(self.parse_vacancy_page(url=url, parse_salary = parse_salary, parse_date = parse_date))
-
+        for url in url_list: 
+            vacancys_data.append(self.parse_vacancy_page(url=url, parse_salary = parse_salary, parse_date = parse_date))
         return vacancys_data
     
 
