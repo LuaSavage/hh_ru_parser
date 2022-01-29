@@ -4,7 +4,8 @@ import requests, re, time, random
 class VacancyScrapper:
 
     __url = "https://hh.ru/search/vacancy"
-
+    
+    @classmethod
     def get_base_url (self): return self.__url
     
     headers = {
