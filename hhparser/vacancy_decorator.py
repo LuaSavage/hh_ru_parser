@@ -1,6 +1,14 @@
-import inflection, re, html2text
+import inflection, re, html2text, codecs, unicodedata
+from .scrapper import VacancyScrapper
 
-class Decorator:    
+class Decorator: 
+   
+    @staticmethod
+    def sanitize_string(raw_string):
+        raw_string = codecs.encode(str(raw_string),'utf8')
+        raw_string = codecs.decode(raw_string,'utf8')
+        raw_string = unicodedata.normalize("NFKD", raw_string).rstrip()             
+        return re.sub(r'\n','',raw_string)          
 
     def __field_rename(self, dictonary, new = False, old = False):
         if old in dictonary:
@@ -28,7 +36,7 @@ class Decorator:
         self.__field_rename(vacancy, old = "vacancy_id", new = "id")
 
     def decorate_url (self, vacancy):
-        vacancy["url"] = "https://hh.ru/vacancy/"+str(vacancy["id"])
+        vacancy["url"] = VacancyScrapper.get_vacancy_url()+"/"+str(vacancy["id"])
 
     def decorate_salary (self, vacancy):
         self.__field_rename(vacancy, old = "compensation", new = "salary")
@@ -106,7 +114,7 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
     html2text = html2text.HTML2Text()
 
     def decorate_url (self, vacancy):
-        vacancy["url"] = "https://hh.ru/vacancy/"+str(vacancy["id"])
+        vacancy["url"] = VacancyScrapper.get_vacancy_url()+"/"+str(vacancy["id"])
         vacancy["alternate_url"] = vacancy["url"]
         vacancy["apply_alternate_url"] = "https://hh.ru/applicant/vacancy_response?vacancyId="+str(vacancy["id"])
 
@@ -119,7 +127,9 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
         if "description" in vacancy:
             self.decorate_branded_description(vacancy)
             self.html2text.ignore_links = True
-            vacancy["description"] = self.html2text.handle(vacancy["description"])
+            vacancy["description"] = self.sanitize_string(
+                self.html2text.handle(vacancy["description"]))
+
 
     def decorate_branded_description(self, vacancy):
         if "description" in vacancy:
@@ -132,7 +142,9 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
 
     def decorate_key_skills(self, vacancy):
         if "key_skills" in vacancy:
-            vacancy["key_skills"] = vacancy["key_skills"]["key_skill"]
+            if vacancy["key_skills"]:
+                if "key_skill" in vacancy["key_skills"]:
+                    vacancy["key_skills"] = vacancy["key_skills"]["key_skill"]
 
     def decorate_employment (self, vacancy):
         if "employment" in vacancy:

@@ -1,20 +1,11 @@
-import codecs
-from .scrapper import VacancyScrapper
-import unicodedata
-import re
-import datetime
+import codecs, unicodedata, re, datetime
 from price_parser import Price
+from .vacancy_decorator import Decorator
 
 class Parser:
 
     def __init__(self, scrapper = None):
         self.scrapper = scrapper
-
-    def __sanitize_string(self, raw_string):
-        raw_string = codecs.encode(str(raw_string),'utf8')
-        raw_string = codecs.decode(raw_string,'utf8')
-        raw_string = unicodedata.normalize("NFKD", raw_string).rstrip()             
-        return re.sub(r'\n','',raw_string)       
 
     def parse_salary(self, raw_salary):        
         salary_value_strings = re.findall(r'((\d+\s*)+)+', raw_salary)
@@ -41,7 +32,6 @@ class Parser:
         return datetime.date(int(date_splited[-1]), month_number, int(date_splited[0]))
         
     def parse_vacancy_page(self, url, parse_salary = False, parse_date = False):
-
         vacancy = {}
         response_parsed = self.scrapper.get_vacancy_page(url)
 
@@ -73,9 +63,9 @@ class Parser:
         # на скорую руку подчищаем вывод
         for key in vacancy:
             if type(vacancy[key]) == str:
-                vacancy[key] = self.__sanitize_string(vacancy[key])
+                vacancy[key] = Decorator.sanitize_string(vacancy[key])
             elif type(vacancy[key]) == list:
-                vacancy[key] = list(self.__sanitize_string(string) for string in vacancy[key])
+                vacancy[key] = list(Decorator.sanitize_string(string) for string in vacancy[key])
 
         if parse_salary:
             vacancy["salary"] = self.parse_salary(vacancy["salary"])
