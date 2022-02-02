@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup as soup
 import requests, re, time, random
 from requests import exceptions as reqexc
 from fake_headers import Headers 
+from .proxy import Proxy
 
 class VacancyScrapper:
 
@@ -37,27 +38,35 @@ class VacancyScrapper:
 
     def __init__(self, params = None, sleep_time = None):
         if sleep_time: self.sleep_time = sleep_time
-        if params: self.params = params       
+        if params: self.params = params
+        self.proxy = Proxy()       
 
     def __wait (self):
         time.sleep(self.sleep_time["min"]+(random.random()*(self.sleep_time["max"]-self.sleep_time["min"])))
 
     def get_page(self, url, use_params=True):
         exceptions = (reqexc.Timeout, reqexc.TooManyRedirects, reqexc.RequestException, reqexc.HTTPError)
+        unparsed = None
         try:
             self.__wait()
             params = self.params if use_params else None
-            response = requests.get(url, headers = self.__fake_header.generate() or self.headers, params = params)
-            return soup(response.text, 'html.parser')
-
-        except exceptions as err:
-            print("get page error: "+err)
+            #response = requests.get(url, headers = self.__fake_header.generate() or self.headers, params = params)
+            current_session = self.proxy.get()
+            print(url,"\n",current_session)
+            response = current_session.get(url, 
+                                    headers = self.__fake_header.generate() or self.headers, 
+                                    params = params)
+                    
+            unparsed = soup(response.text, 'html.parser')
+        except exceptions as err: 
+            print("get page error: "+str(err))
             pass
+
+        return unparsed or self.get_page(url, use_params=use_params)    
 
     def get_vacancy_page(self, url, id = None):
         if id: 
             url = self.__url_vacancy+"/"+id
-        print(url)
         return self.get_page(url, use_params=False)
 
     def get_searching_results_page(self, page_number = None):
