@@ -1,19 +1,24 @@
 from hhparser.scrapper import VacancyScrapper
 from hhparser.parser import Parser
+from hhparser.template_parser import DumpParser
+from hhparser.api import Api
 
 params = {
-    "clusters": False,
-    "ored_clusters": False,
-    "enable_snippets": False,
+    "clusters": True,
+    "ored_clusters": True,
+    "enable_snippets": True,
     "salary": None,
-    "st": "searchVacancy",
     "text": "golang junior",
+    "area": None,
     "page": 0
 }
 
 scrapper = VacancyScrapper(params = params)
-#links = scrapper.get_vacancy_links()
-#print(links)
-parser = Parser(scrapper = scrapper)
-print(parser.parse_vacancy_page("https://hh.ru/vacancy/49363564", parse_salary=True, parse_date=True))
-#print(parser.parse_vacancys(url_list=links))
+
+hh_ru_api = Api(scrapper)
+
+vac = hh_ru_api.get_vacancies(bless_fields=["description","key_skills"])
+print(len(vac))
+import json
+print(json.dumps(vac, indent=4, ensure_ascii=False))
+#DumpParser.parse_vacancy_page (scrapper.get_vacancy_page(url = "https://hh.ru/vacancy/50329861"))
