@@ -50,13 +50,13 @@ class VacancyScrapper:
         try:
             self.__wait()
             params = self.params if use_params else None
+            print(url)
             #response = requests.get(url, headers = self.__fake_header.generate() or self.headers, params = params)
             current_session = self.proxy.get()
-            print(url,"\n",current_session)
+            print(current_session)
             response = current_session.get(url, 
                                     headers = self.__fake_header.generate() or self.headers, 
-                                    params = params)
-                    
+                                    params = params)                    
             unparsed = soup(response.text, 'html.parser')
         except exceptions as err: 
             print("get page error: "+str(err))
@@ -76,10 +76,14 @@ class VacancyScrapper:
     def get_page_count(self):            
         response = self.get_searching_results_page()
         pager_buttons = response.select("div[data-qa='pager-block'] a[class='bloko-button'][data-qa='pager-page']")  
-        page_numbers = [0] 
+        page_numbers = [] 
 
         for pager_button in (pager_buttons or []):              
             page_numbers.append(int(pager_button.get_text()))
+
+        if len(page_numbers) == 0:
+            page_numbers.append(1)
+            
         return max(page_numbers)
 
     def get_vacancy_links(self):
