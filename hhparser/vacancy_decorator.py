@@ -16,10 +16,10 @@ class Decorator:
         raw_string = unicodedata.normalize("NFKD", raw_string).rstrip()
         return re.sub(r"\n", "", raw_string)
 
-    def __field_rename(self, dictonary, new=False, old=False):
-        if old in dictonary:
-            dictonary[new] = dictonary.pop(old)
-        return dictonary
+    def __field_rename(self, dictionary, new=False, old=False):
+        if old in dictionary:
+            dictionary[new] = dictionary.pop(old)
+        return dictionary
 
     def __clear_at_sign(self, row):
         return re.sub(r"^@", "", row)
@@ -89,12 +89,12 @@ class Decorator:
 
 class InterfaceVacancyDecorator:
     def __init__(self, vacancy_data):
-        self.vavacancy_data = []
+        self.vacancy_data = []
         if isinstance(vacancy_data, list):
             for vacancy in vacancy_data:
-                self.vavacancy_data.append(self.decorate(vacancy))
+                self.vacancy_data.append(self.decorate(vacancy))
         elif isinstance(vacancy_data, dict):
-            self.vavacancy_data = self.decorate(vacancy_data)
+            self.vacancy_data = self.decorate(vacancy_data)
 
     def decorate(self, vacancy):
         pass
@@ -127,7 +127,7 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
             "https://hh.ru/applicant/vacancy_response?vacancyId=" + str(vacancy["id"])
         )
 
-    def decorate_experiance(self, vacancy):
+    def decorate_experience(self, vacancy):
         self._Decorator__field_rename(vacancy, old="work_experience", new="experiance")
         if "experiance" in vacancy:
             vacancy["experiance"] = {"id": vacancy["experiance"]}
@@ -161,6 +161,6 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
 
     def decorate(self, vacancy):
         vacancy = super().decorate(vacancy)
-        self.decorate_experiance(vacancy)
+        self.decorate_experience(vacancy)
         self.decorate_employment(vacancy)
         return vacancy

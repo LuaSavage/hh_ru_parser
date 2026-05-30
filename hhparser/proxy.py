@@ -25,7 +25,7 @@ class Proxy:
         self.session.proxies = {"http": host, "https": host}
         return self.session
 
-    async def extract_froxies_from_queue(self, proxies, proxies_to_verify):
+    async def extract_proxies_from_queue(self, proxies, proxies_to_verify):
         while True:
             proxy = await proxies.get()
             if proxy is None:
@@ -67,7 +67,7 @@ class Proxy:
         proxy_limit = 50
         tasks = asyncio.gather(
             broker.find(types=["HTTPS"], limit=proxy_limit),
-            self.extract_froxies_from_queue(proxies, proxies_to_verify),
+            self.extract_proxies_from_queue(proxies, proxies_to_verify),
             self.verify_proxy(proxies_to_verify),
         )
 

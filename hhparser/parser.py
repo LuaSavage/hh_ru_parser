@@ -20,7 +20,7 @@ class Parser:
             "from": salary_sequence[0] if len(salary_sequence) > 0 else False,
             "to": salary_sequence[1] if len(salary_sequence) > 1 else False,
             "gross": False if re.search(r"на\s+руки", raw_salary) else True,
-            "currancy": Price.fromstring(raw_salary).currency,
+            "currency": Price.fromstring(raw_salary).currency,
         }
 
         return salary
@@ -29,7 +29,7 @@ class Parser:
         date_text = re.search(r"\d+\s+[^\d\s]+\s+\d+", raw_date or "")
         if date_text:
             date_text = date_text.group()
-        date_splited = re.split(r"\s+", date_text)
+        date_parts = re.split(r"\s+", date_text)
         a_month = [
             "",
             "янв",
@@ -45,9 +45,9 @@ class Parser:
             "ноя",
             "дек",
         ]
-        month_abbr = re.search(r"^[\w+]{3}", date_splited[-2]).group()
+        month_abbr = re.search(r"^[\w+]{3}", date_parts[-2]).group()
         month_number = a_month.index(month_abbr)
-        return datetime.date(int(date_splited[-1]), month_number, int(date_splited[0]))
+        return datetime.date(int(date_parts[-1]), month_number, int(date_parts[0]))
 
     def parse_vacancy_page(self, url, parse_salary=False, parse_date=False):
         vacancy = {}
@@ -69,10 +69,10 @@ class Parser:
             response_parsed.find("div", attrs={"class": "vacancy-company-badge"}) and True
         )
 
-        full_adress = response_parsed.find("span", attrs={"data-qa": "vacancy-view-raw-address"})
+        full_address = response_parsed.find("span", attrs={"data-qa": "vacancy-view-raw-address"})
         city_or_smth = response_parsed.find("p", attrs={"data-qa": "vacancy-view-location"})
         vacancy["adress"] = (
-            (city_or_smth or full_adress).get_text() if city_or_smth or full_adress else ""
+            (city_or_smth or full_address).get_text() if city_or_smth or full_address else ""
         )
 
         vacancy["employment_mode"] = response_parsed.find(

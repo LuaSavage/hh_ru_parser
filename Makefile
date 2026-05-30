@@ -8,8 +8,8 @@ help:
 	@echo "Targets:"
 	@echo "  make venv         — create virtual environment (.venv)"
 	@echo "  make install      — install runtime dependencies"
-	@echo "  make install-dev  — install runtime + dev dependencies (ruff)"
-	@echo "  make lint         — run ruff linter"
+	@echo "  make install-dev  — install runtime + dev dependencies (ruff, typos)"
+	@echo "  make lint         — run ruff linter + typos spell check"
 	@echo "  make format       — auto-format code with ruff"
 	@echo "  make format-check — check formatting without changes"
 	@echo "  make check        — lint + format-check (CI-friendly)"
@@ -30,6 +30,7 @@ install-dev: install
 
 lint:
 	$(BIN)/ruff check .
+	$(BIN)/typos
 
 format:
 	$(BIN)/ruff format .

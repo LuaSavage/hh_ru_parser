@@ -1,0 +1,11 @@
+[files]
+extend-exclude = [
+    ".venv",
+    ".git",
+    ".ruff_cache",
+]
+
+[default.extend-words]
+# Legacy output field names kept for backward compatibility with old API shape.
+experiance = "experiance"
+adress = "adress"

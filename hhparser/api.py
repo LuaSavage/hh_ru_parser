@@ -5,7 +5,7 @@ from .template_parser import DumpParser
 class Api:
     def __init__(self, scrapper) -> None:
         self.scrapper = scrapper
-        self.vacancy_blasser = VacancyBlesser(self.scrapper)
+        self.vacancy_blesser = VacancyBlesser(self.scrapper)
 
     def get_vacancy(self, id=None, url=None):
         vacancy_page = self.scrapper.get_vacancy_page(url, id=id)
@@ -27,6 +27,6 @@ class Api:
             all_vacancies += vacancies
 
         if bless_fields:
-            self.vacancy_blasser.bless_fields(all_vacancies, bless_fields)
+            self.vacancy_blesser.bless_fields(all_vacancies, bless_fields)
 
         return all_vacancies
