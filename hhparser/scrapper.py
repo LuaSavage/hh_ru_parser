@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 
@@ -6,6 +7,8 @@ from fake_headers import Headers
 from requests import exceptions as reqexc
 
 from .proxy import Proxy
+
+logger = logging.getLogger(__name__)
 
 
 class VacancyScrapper:
@@ -57,17 +60,15 @@ class VacancyScrapper:
         try:
             self.__wait()
             params = self.params if use_params else None
-            print(url)
-            # response = requests.get(url, headers = self.__fake_header.generate() or self.headers, params = params)
+            logger.debug("GET %s params=%s", url, params)
             current_session = self.proxy.get()
-            print(current_session)
+            logger.debug("Using proxy session %s", current_session.proxies)
             response = current_session.get(
                 url, headers=self.__fake_header.generate() or self.headers, params=params
             )
             unparsed = soup(response.text, "html.parser")
         except exceptions as err:
-            print("get page error: " + str(err))
-            pass
+            logger.warning("get page error: %s", err)
 
         return unparsed or self.get_page(url, use_params=use_params)
 

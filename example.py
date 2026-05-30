@@ -1,7 +1,9 @@
 import json
+import logging
 
-from hhparser.api import Api
-from hhparser.scrapper import VacancyScrapper
+from hhparser import Api, VacancyScrapper, configure_logging
+
+configure_logging(logging.INFO)
 
 params = {
     "clusters": True,
@@ -14,10 +16,9 @@ params = {
 }
 
 scrapper = VacancyScrapper(params=params)
-
 hh_ru_api = Api(scrapper)
 
 vac = hh_ru_api.get_vacancies(bless_fields=["description", "key_skills"])
-print(len(vac))
+
+logging.getLogger(__name__).info("Total vacancies: %s", len(vac))
 print(json.dumps(vac, indent=4, ensure_ascii=False))
-# DumpParser.parse_vacancy_page (scrapper.get_vacancy_page(url = "https://hh.ru/vacancy/50329861"))

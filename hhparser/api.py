@@ -1,5 +1,9 @@
+import logging
+
 from .bless import VacancyBlesser
 from .template_parser import DumpParser
+
+logger = logging.getLogger(__name__)
 
 
 class Api:
@@ -17,14 +21,14 @@ class Api:
 
         all_vacancies = []
         page_count = self.scrapper.get_page_count()
-        print("page_count", page_count, self.scrapper.params["text"])
+        logger.info("page_count=%s text=%s", page_count, self.scrapper.params["text"])
         for page_number in range(page_count):
             vacancies = []
 
             while len(vacancies) == 0:
                 vacancies_page = self.scrapper.get_searching_results_page(page_number=page_number)
                 vacancies = DumpParser.parse_search_page(vacancies_page)
-            print(len(vacancies), page_number)
+            logger.debug("page=%s vacancies=%s", page_number, len(vacancies))
             all_vacancies += vacancies
 
         if bless_fields:
