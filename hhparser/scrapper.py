@@ -1,5 +1,4 @@
 import random
-import re
 import time
 
 from bs4 import BeautifulSoup as soup
@@ -82,35 +81,23 @@ class VacancyScrapper:
         return self.get_page(self.__url_search)
 
     def get_page_count(self):
+        from .template_parser import DumpParser
+
         response = self.get_searching_results_page()
-        pager_buttons = response.select(
-            "div[data-qa='pager-block'] a[class='bloko-button'][data-qa='pager-page']"
-        )
-        page_numbers = []
-
-        for pager_button in pager_buttons or []:
-            page_numbers.append(int(pager_button.get_text()))
-
-        if len(page_numbers) == 0:
-            page_numbers.append(1)
-
-        return max(page_numbers)
+        return DumpParser.get_search_page_count(response)
 
     def get_vacancy_links(self):
-        page_count = self.get_page_count()
+        from .template_parser import DumpParser
+
         links = []
 
-        for i in range(page_count):
-            vacancys_on_page = False
-            while not vacancys_on_page:
-                response = self.get_searching_results_page(page_number=i)
-                # ищем блоки с вакансиями
-                vacancys_on_page = response.find_all("div", attrs={"class": "vacancy-serp-item"})
-                vacancys_on_page = vacancys_on_page if len(vacancys_on_page or []) > 0 else False
+        for page_number in range(self.get_page_count()):
+            vacancies = []
+            while not vacancies:
+                response = self.get_searching_results_page(page_number=page_number)
+                vacancies = DumpParser.parse_search_page(response)
 
-            # выдергиваем url
-            for vacancy_block in vacancys_on_page or []:
-                link_container = vacancy_block.find("a", attrs={"class": "bloko-link"})
-                links.append(re.sub(r"\?.+", r"", str(link_container["href"])))
+            for vacancy in vacancies:
+                links.append(vacancy["url"])
 
         return links

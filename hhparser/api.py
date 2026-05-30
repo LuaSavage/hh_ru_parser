@@ -16,14 +16,15 @@ class Api:
             self.scrapper.params["text"] = search_text
 
         all_vacancies = []
-        print("page_count", self.scrapper.get_page_count(), self.scrapper.params["text"])
-        for i in range(self.scrapper.get_page_count()):
+        page_count = self.scrapper.get_page_count()
+        print("page_count", page_count, self.scrapper.params["text"])
+        for page_number in range(page_count):
             vacancies = []
 
             while len(vacancies) == 0:
-                vacancies_page = self.scrapper.get_searching_results_page(page_number=i)
+                vacancies_page = self.scrapper.get_searching_results_page(page_number=page_number)
                 vacancies = DumpParser.parse_search_page(vacancies_page)
-            print(len(vacancies), i)
+            print(len(vacancies), page_number)
             all_vacancies += vacancies
 
         if bless_fields:

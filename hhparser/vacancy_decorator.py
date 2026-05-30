@@ -66,8 +66,29 @@ class Decorator:
             vacancy["type"] = {"id": vacancy["type"]}
 
     def decorate_schedule(self, vacancy):
+        if "schedule" in vacancy:
+            return
         if "work_schedule" in vacancy:
             vacancy["schedule"] = {"id": vacancy.pop("work_schedule")}
+            return
+        work_schedule_by_days = vacancy.get("work_schedule_by_days") or []
+        if work_schedule_by_days:
+            vacancy["schedule"] = {"id": work_schedule_by_days[0]}
+
+    def decorate_experience(self, vacancy):
+        if "experiance" in vacancy:
+            return
+        if "work_experience" in vacancy:
+            experience = vacancy.pop("work_experience")
+            vacancy["experiance"] = {"id": experience}
+
+    def decorate_employment(self, vacancy):
+        if "employment" in vacancy and isinstance(vacancy["employment"], dict):
+            if "type" in vacancy["employment"] and "id" not in vacancy["employment"]:
+                vacancy["employment"]["id"] = vacancy["employment"].pop("type")
+            return
+        if "employment_form" in vacancy:
+            vacancy["employment"] = {"id": vacancy["employment_form"]}
 
     def decorate_responses(self, vacancy):
         if "responses_count" in vacancy:
@@ -85,6 +106,15 @@ class Decorator:
     def decorate_key_skills(self, vacancy):
         if "key_skills" not in vacancy and "snippet" in vacancy:
             vacancy["key_skills"] = vacancy["snippet"].get("skill")
+            return
+        if not vacancy.get("key_skills"):
+            return
+        key_skills = vacancy["key_skills"]
+        if isinstance(key_skills, dict) and "key_skill" in key_skills:
+            vacancy["key_skills"] = key_skills["key_skill"]
+        elif isinstance(key_skills, list) and key_skills and isinstance(key_skills[0], dict):
+            if "name" in key_skills[0]:
+                vacancy["key_skills"] = [skill["name"] for skill in key_skills]
 
 
 class InterfaceVacancyDecorator:
@@ -112,6 +142,8 @@ class SearchedVacancyDecorator(Decorator, InterfaceVacancyDecorator):
         self.decorate_type(vacancy)
         self.decorate_schedule(vacancy)
         self.decorate_responses(vacancy)
+        self.decorate_experience(vacancy)
+        self.decorate_employment(vacancy)
         self.decorate_key_skills(vacancy)
         self.decorate_description(vacancy)
         return vacancy
@@ -149,18 +181,5 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
     def decorate_published_at(self, vacancy):
         self._Decorator__field_rename(vacancy, old="publication_date", new="published_at")
 
-    def decorate_key_skills(self, vacancy):
-        if "key_skills" in vacancy:
-            if vacancy["key_skills"]:
-                if "key_skill" in vacancy["key_skills"]:
-                    vacancy["key_skills"] = vacancy["key_skills"]["key_skill"]
-
-    def decorate_employment(self, vacancy):
-        if "employment" in vacancy:
-            self._Decorator__field_rename(vacancy["employment"], old="type", new="id")
-
     def decorate(self, vacancy):
-        vacancy = super().decorate(vacancy)
-        self.decorate_experience(vacancy)
-        self.decorate_employment(vacancy)
-        return vacancy
+        return super().decorate(vacancy)
