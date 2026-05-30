@@ -1,0 +1,8 @@
+beautifulsoup4>=4.14,<5
+requests>=2.34,<3
+fake-headers>=1.0,<2
+price-parser>=0.5,<1
+inflection>=0.5,<1
+html2text>=2025.4
+aiohttp>=3.13,<4
+proxybroker>=0.3,<1
