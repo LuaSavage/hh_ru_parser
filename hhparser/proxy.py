@@ -63,17 +63,16 @@ class Proxy:
     def find_proxies(self):
         proxies = asyncio.Queue()
         proxies_to_verify = asyncio.Queue()
-        broker = Broker(proxies)
+        broker = Broker(proxies, timeout=3, verify_ssl=True)
         proxy_limit = 50
         tasks = asyncio.gather(
-            broker.find(types=["HTTPS"], timout=3, verify_ssl=True, limit=proxy_limit),
+            broker.find(types=["HTTPS"], limit=proxy_limit),
             self.extract_froxies_from_queue(proxies, proxies_to_verify),
             self.verify_proxy(proxies_to_verify),
         )
 
-        loop = asyncio.get_event_loop()
-        futures = loop.run_until_complete(tasks)
-        self.list = list(futures[2])
+        verified = asyncio.run(tasks)
+        self.list = list(verified[2])
         if len(self.list) < 2:
             print("No one proxy not found, retry")
             self.find_proxies()
