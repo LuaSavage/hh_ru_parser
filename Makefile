@@ -13,6 +13,7 @@ help:
 	@echo "  make format       — auto-format code with ruff"
 	@echo "  make format-check — check formatting without changes"
 	@echo "  make check        — lint + format-check (CI-friendly)"
+	@echo "  make fetch-golang — example: dump golang vacancies to output/ (use LIMIT=5 for quick test)"
 	@echo "  make clean        — remove venv and caches"
 
 venv:
@@ -40,6 +41,11 @@ format-check:
 	$(BIN)/ruff format --check .
 
 check: lint format-check
+
+LIMIT ?=
+fetch-golang:
+	PYTHONPATH=. $(BIN)/python examples/golang_full_dump.py \
+		$(if $(LIMIT),--max-vacancies $(LIMIT) --max-pages 1,)
 
 clean:
 	rm -rf $(VENV) .ruff_cache

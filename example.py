@@ -15,7 +15,8 @@ params = {
     "page": 0,
 }
 
-scrapper = VacancyScrapper(params=params)
+# use_proxy="adaptive": direct crawl + background broker, proxy per vacancy on failure
+scrapper = VacancyScrapper(params=params, use_proxy="adaptive")
 hh_ru_api = Api(scrapper)
 
 vac = hh_ru_api.get_vacancies(bless_fields=["description", "key_skills"])
