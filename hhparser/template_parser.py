@@ -65,11 +65,31 @@ class DumpParser:
         return 1
 
     @classmethod
+    def __vacancy_from_view(cls, vacancy_view: dict) -> dict:
+        """HH иногда кладёт поля в vacancyView, иногда — в vacancyView.vacancyFull.vacancy."""
+        vacancy_full = vacancy_view.get("vacancyFull")
+        if isinstance(vacancy_full, dict):
+            nested = vacancy_full.get("vacancy")
+            if isinstance(nested, dict):
+                return nested
+
+        if isinstance(vacancy_view, dict) and (
+            "vacancyId" in vacancy_view
+            or "vacancy_id" in vacancy_view
+            or "id" in vacancy_view
+        ):
+            return vacancy_view
+
+        raise ValueError(
+            "vacancy payload not found in vacancyView (blocked, incomplete, or unknown layout)"
+        )
+
+    @classmethod
     def parse_vacancy_page(cls, page):
         json_obj = cls.__parse_template(page)
         if "vacancyView" not in json_obj:
             raise ValueError("vacancyView not found in page state (blocked or incomplete page)")
-        vacancy = json_obj["vacancyView"]
+        vacancy = cls.__vacancy_from_view(json_obj["vacancyView"])
         ViewVacancyDecorator(vacancy)
         return vacancy
 
