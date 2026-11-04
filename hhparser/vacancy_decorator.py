@@ -2,7 +2,6 @@ import codecs
 import re
 import unicodedata
 
-import html2text
 import inflection
 
 from .scrapper import VacancyScrapper
@@ -150,8 +149,6 @@ class SearchedVacancyDecorator(Decorator, InterfaceVacancyDecorator):
 
 
 class ViewVacancyDecorator(SearchedVacancyDecorator):
-    html2text = html2text.HTML2Text()
-
     def decorate_url(self, vacancy):
         vacancy["url"] = VacancyScrapper.get_vacancy_url() + "/" + str(vacancy["id"])
         vacancy["alternate_url"] = vacancy["url"]
@@ -167,10 +164,10 @@ class ViewVacancyDecorator(SearchedVacancyDecorator):
     def decorate_description(self, vacancy):
         if "description" in vacancy:
             self.decorate_branded_description(vacancy)
-            self.html2text.ignore_links = True
-            vacancy["description"] = self.sanitize_string(
-                self.html2text.handle(vacancy["description"])
-            )
+            # HH отдаёт description в HTML (<p>/<ul>/<strong>/<br>) — отдаём как есть,
+            # потребитель санитизирует сам. Прежняя конвертация html2text + снос \n
+            # склеивала абзацы и даже слова («системотопления»).
+            vacancy["description"] = str(vacancy["description"]).strip()
 
     def decorate_branded_description(self, vacancy):
         if "description" in vacancy:

@@ -33,3 +33,17 @@ def test_vacancy_from_view_legacy_flat():
     vacancy = DumpParser._DumpParser__vacancy_from_view(vacancy_view)
     ViewVacancyDecorator(vacancy)
     assert vacancy["id"] == 7
+
+
+def test_vacancy_description_keeps_html():
+    """description от HH идёт как есть: без html2text и без сноса переносов."""
+    vacancy = {
+        "id": 7,
+        "description": "<p><strong>Мы — MyHeat.</strong></p>\n<ul><li>знание C/C++</li><li>STM32</li></ul>",
+        "is_branding_preview": True,
+    }
+    ViewVacancyDecorator(vacancy)
+    assert vacancy["description"] == (
+        "<p><strong>Мы — MyHeat.</strong></p>\n<ul><li>знание C/C++</li><li>STM32</li></ul>"
+    )
+    assert vacancy["branded_description"] == vacancy["description"]
