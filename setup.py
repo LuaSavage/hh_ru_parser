@@ -1,0 +1,19 @@
+from setuptools import find_packages, setup
+
+setup(
+    name="hhparser",
+    version="0.1.0",
+    description="HH.ru parser library",
+    packages=find_packages(),
+    python_requires=">=3.10",
+    install_requires=[
+        "beautifulsoup4>=4.14,<5",
+        "requests>=2.34,<3",
+        "fake-headers>=1.0,<2",
+        "price-parser>=0.5,<1",
+        "inflection>=0.5,<1",
+        "html2text>=2025.4",
+        "aiohttp>=3.13,<4",
+        "proxybroker2 @ git+https://github.com/bluet/proxybroker2.git@v2.0.0b1",
+    ],
+)

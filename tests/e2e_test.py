@@ -51,8 +51,9 @@ def validate_vacancies(vacancies: list[dict[str, Any]]) -> None:
 def test_direct_parsing() -> list[dict[str, Any]]:
     print("\n=== 1. Direct HTTP + DumpParser (без прокси) ===")
     page = fetch_search_page_direct(page=0)
-    noindex = page.find("noindex")
-    assert noindex is not None, "На странице должен быть тег <noindex> с JSON"
+    assert DumpParser.page_has_expected_state(page, "search"), (
+        "На странице должен быть HH-Lux-InitialState с vacancySearchResult"
+    )
 
     vacancies = DumpParser.parse_search_page(page)
     validate_vacancies(vacancies)
