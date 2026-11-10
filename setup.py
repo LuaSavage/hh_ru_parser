@@ -14,6 +14,6 @@ setup(
         "inflection>=0.5,<1",
         "html2text>=2025.4",
         "aiohttp>=3.13,<4",
-        "proxybroker2 @ git+https://github.com/bluet/proxybroker2.git@v2.0.0b1",
+        "proxybroker2 @ git+https://github.com/bluet/proxybroker2.git@v2.0.0b3",
     ],
 )
